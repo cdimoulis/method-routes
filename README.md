@@ -1,5 +1,5 @@
 # Method Routes
-
+<!--
 A simple route and method matcher for nodejs.
 
 [![npm][npm]][npm-url]
@@ -124,4 +124,4 @@ router.clearAll();
 [tests-url]: https://travis-ci.org/cdimoulis/method-routes
 
 [cover]: https://coveralls.io/repos/github/cdimoulis/method-routes/badge.svg?branch=master
-[cover-url]: https://coveralls.io/github/cdimoulis/method-routes?branch=master
+[cover-url]: https://coveralls.io/github/cdimoulis/method-routes?branch=master -->
