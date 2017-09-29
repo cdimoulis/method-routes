@@ -1,0 +1,41 @@
+{
+  "name": "method-routes",
+  "version": "0.1.0",
+  "description": "A simple route and method matcher for nodejs",
+  "keywords": [
+    "router",
+    "routes",
+    "methods",
+    "requests",
+    "simple"
+  ],
+  "license": "MIT",
+  "author": {
+    "name": "Christopher Dimoulis",
+    "email": "christopherjamesd@gmail.com",
+    "url": "http://chrisdimoulis.com"
+  },
+  "main": "src/router.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cdimoulis/method-routes.git"
+  },
+  "scripts": {
+    "test": "jest --coverage",
+    "coverage": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
+  },
+  "engines": {
+    "node": ">= 6.11"
+  },
+  "dependencies": {
+    "columnify": "^1.5.4",
+    "simple-routes": "^0.1.2"
+  },
+  "devDependencies": {
+    "coveralls": "^3.0.0",
+    "jest": "^21.2.0"
+  },
+  "jest": {
+    "testEnvironment": "node"
+  }
+}
