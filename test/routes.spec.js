@@ -44,7 +44,7 @@ test('Add routes', () => {
     [Routes.POST, '/test', post_action],
     [Routes.GET, '/test', get_action],
     [Routes.PUT, '/love/*', put_action],
-    [Routes.DELETE, '/temp', delete_action],
+    [Routes.DELETE, '/temp', f.x],
   ]);
   let _routes = routes.routes();
   let _actions = routes.actions();
@@ -105,11 +105,11 @@ test('Remove route with query', () => {
   expect(routes.hasMethodRoute(Routes.POST, '/query')).toBeFalsy();
 });
 
-// test('To String', () => {
-//   expect(typeof routes.toString()).toBe('string');
-// });
-//
-//
+test('To String', () => {
+  expect(typeof routes.toString()).toBe('string');
+});
+
+
 // // EXCEPTIONS
 test('Bad Route', () => {
   let f = () => {routes.addMethodRoute(Routes.POST, 3, post_action)};
