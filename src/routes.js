@@ -1,4 +1,5 @@
 const SimpleRoutes = require('simple-routes');
+const columnify = require('columnify');
 
 // List of possible methods
 const METHODS = [
@@ -130,6 +131,28 @@ class Routes extends SimpleRoutes {
     // Separate potential query string
     let rq = route.split('?');
     return this.hasRoute(`${method}:${rq[0]}`);
+  };
+
+  // Get a pretty listing of the methods, routes and actions
+  toString() {
+    let data = [];
+    for (let i = 0; i < this.routes().length; i++) {
+      let r = this.routes()[i].split(':');
+      let method = r[0];
+      let route = r[1];
+      let action = this.actions()[i].name || this.actions()[i].toString();
+      action = action.replace(/\s\s+/g,' ');
+      data.push({method: method, route: route, action: action});
+    }
+    let columns = columnify(data, {
+      truncate: true,
+      minWidth: 20,
+      config: {
+        action: {maxWidth: 30},
+        method: {maxWidth: 10},
+      },
+    });
+    return columns;
   };
 };
 
