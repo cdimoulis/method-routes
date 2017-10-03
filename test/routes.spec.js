@@ -1,32 +1,38 @@
 const Routes = require('../src/routes');
 
 let routes = new Routes();
-let action1 = () => {return 1;};
-let action2 = () => {return 2;};
+let post_action = () => {return 1;};
+let get_action = () => {return 2;};
+let put_action = () => {return 3;};
+let delete_action = () => {return 4;};
 
-test('Add route', () => {
-  routes.addRoute(Routes.POST, '/test', action1);
-  let _routes = routes.routes();
-  let _actions = routes.actions();
-  expect(_routes.length).toBe(1);
-  expect(_actions.length).toBe(1);
-  expect(_routes).toContain('/test');
-  expect(_actions).toContain(action1);
+test('Add Route', () => {
+  routes.addRoute('DELETE:/temp', delete_action);
+  expect(routes.routes().length).toBe(1);
+  expect(routes.actions().length).toBe(1);
+  expect(routes.routes()).toContain('DELETE:/temp');
+  expect(routes.actions()).toContain(delete_action);
+});
+
+test('Add method route', () => {
+  routes.addMethodRoute(Routes.POST, '/test', post_action);
+  expect(routes.routes().length).toBe(2);
+  expect(routes.actions().length).toBe(2);
+  expect(routes.routes()[1]).toBe('POST:/test');
+  expect(routes.actions()[1]).toBe(post_action);
 });
 
 test('Already Exists', () => {
-  routes.addRoute(Routes.POST, '/test', action2);
-  expect(routes.routes().length).toBe(1);
-  expect(routes.actions().length).toBe(1);
-  expect(routes.actions()[0]).toBe(action1);
+  routes.addMethodRoute(Routes.POST, '/test?b=4', get_action);
+  expect(routes.routes().length).toBe(2);
+  expect(routes.actions().length).toBe(2);
+  expect(routes.actions()[1]).toBe(post_action);
 });
 
 test('Clear all', () => {
   routes.clearAll();
-  let _routes = routes.routes();
-  let _actions = routes.actions();
-  expect(_routes.length).toBe(0);
-  expect(_actions.length).toBe(0);
+  expect(routes.routes().length).toBe(0);
+  expect(routes.actions().length).toBe(0);
 });
 
 test('Add routes', () => {
@@ -35,56 +41,70 @@ test('Add routes', () => {
   let f = {};
   f.x = () => {return 3;};
   routes.addRoutes([
-    [Routes.GET, '/test', action1],
-    [Routes.PUT, '/love', action2],
-    [Routes.DELETE, '/temp', f.x],
+    [Routes.POST, '/test', post_action],
+    [Routes.GET, '/test', get_action],
+    [Routes.PUT, '/love/*', put_action],
+    [Routes.DELETE, '/temp', delete_action],
   ]);
   let _routes = routes.routes();
   let _actions = routes.actions();
-  expect(_routes.length).toBe(3);
-  expect(_actions.length).toBe(3);
-  expect(_routes[1]).toBe('/love');
-  expect(_actions[1]).toBe(action2);
+  expect(_routes.length).toBe(4);
+  expect(_actions.length).toBe(4);
+  expect(_routes[2]).toBe('PUT:/love/*');
+  expect(_actions[2]).toBe(put_action);
 });
 
-// test('Get Action', () => {
-//   expect(routes.getAction('/test')).toBe(action1);
-//   expect(routes.getAction('/love')).toBe(action2);
-//   expect(routes.getAction('/not_found')).toBe(-1);
-// });
-//
-// test('Remove route', () => {
-//   routes.removeRoute('test');
-//   let _routes = routes.routes();
-//   expect(routes.length).toBe(3);
-//   routes.removeRoute('/test');
-//   _routes = routes.routes();
-//   let _actions = routes.actions();
-//   expect(_routes.length).toBe(2);
-//   expect(_actions.length).toBe(2);
-//   expect(_routes).not.toContain('/test');
-//   expect(_actions).not.toContain(action1);
-// });
-//
-// test('Add route with query', () => {
-//   routes.addRoute('/query?a=1&b=2', action1);
-//   // With no query
-//   expect(routes.hasRoute('/query')).toBeTruthy();
-//   // With query
-//   expect(routes.hasRoute('/query?peace=love')).toBeTruthy();
-//   expect(routes.getAction('/query?children=3&parents=2')).toBe(action1);
-// });
-//
-// test('Remove route with query', () => {
-//   routes.removeRoute('/query');
-//   expect(routes.hasRoute('/query')).toBeFalsy();
-// });
-//
-// test('Has Route', () => {
-//   expect(routes.hasRoute('/love')).toBeTruthy();
-//   expect(routes.hasRoute('/not_found')).toBeFalsy();
-// });
-//
+test('Get Action', () => {
+  expect(routes.getMethodAction(Routes.POST, '/test')).toBe(post_action);
+  expect(routes.getMethodAction(Routes.GET, '/test')).toBe(get_action);
+  expect(routes.getMethodAction(Routes.PUT, '/love/food')).toBe(put_action);
+  expect(routes.getMethodAction(Routes.DELETE, '/not_found')).toBeUndefined();
+});
+
+test('Get Route Match', () => {
+  routes.addRoutes([
+    [Routes.POST, '/a/b/*/c', post_action],
+    [Routes.GET, '/*/b/*/c', get_action]
+  ]);
+  expect(routes.getMethodRouteMatch(Routes.POST, '/a/b/z/c')).toBe('POST:/a/b/*/c');
+  expect(routes.getMethodRouteMatch(Routes.GET, '/x/b/z/c')).toBe('GET:/*/b/*/c');
+  expect(routes.getMethodRouteMatch(Routes.PUT, '/love/q')).toBe('PUT:/love/*');
+  expect(routes.getMethodRouteMatch(Routes.POST, '/a/b/z/c/d')).toBeUndefined();
+  routes.removeMethodRoute(Routes.POST, '/a/b/*/c');
+  routes.removeMethodRoute(Routes.GET, '/*/b/*/c');
+});
+
+test('Remove route', () => {
+  routes.removeMethodRoute(Routes.POST, 'test');
+  expect( routes.routes().length).toBe(4);
+  routes.removeMethodRoute(Routes.POST, '/test');
+  expect(routes.routes().length).toBe(3);
+  expect(routes.actions().length).toBe(3);
+  expect(routes.routes()).not.toContain('POST:/test');
+  expect(routes.actions()).not.toContain(post_action);
+});
+
+test('Add route with query', () => {
+  routes.addMethodRoute(Routes.POST, '/query?a=1&b=2', post_action);
+  // With no query
+  expect(routes.hasMethodRoute(Routes.POST, '/query')).toBeTruthy();
+  // With query
+  expect(routes.hasMethodRoute(Routes.POST, '/query?peace=love')).toBeTruthy();
+  expect(routes.getMethodAction(Routes.POST, '/query?children=3&parents=2')).toBe(post_action);
+});
+
+test('Has Route (including query)', () => {
+  expect(routes.hasMethodRoute(Routes.PUT, '/love/*')).toBeTruthy();
+  expect(routes.hasMethodRoute(Routes.GET, '/love/*')).toBeFalsy();
+  expect(routes.hasMethodRoute(Routes.POST, '/query?z=3&y=4')).toBeTruthy();
+  expect(routes.hasMethodRoute(Routes.POST, '/not_found')).toBeFalsy();
+});
+
+test('Remove route with query', () => {
+  routes.removeMethodRoute(Routes.POST, '/query?c=4&d=6');
+  expect(routes.hasMethodRoute(Routes.POST, '/query')).toBeFalsy();
+});
+
 // test('To String', () => {
 //   expect(typeof routes.toString()).toBe('string');
 // });
@@ -92,19 +112,19 @@ test('Add routes', () => {
 //
 // // EXCEPTIONS
 test('Bad Route', () => {
-  let f = () => {routes.addRoute(Routes.POST, 3, action1)};
-  expect(f).toThrow(/Router Error: Route must be a string/);
+  let f = () => {routes.addMethodRoute(Routes.POST, 3, post_action)};
+  expect(f).toThrow(/Routes Error: Route must be a string/);
 });
 
 test('Bad Action', () => {
-  let f = () => {routes.addRoute(Routes.POST, '/edit',3)};
-  expect(f).toThrow(/Router Error: Action must be a function/);
+  let f = () => {routes.addMethodRoute(Routes.POST, '/edit', 3)};
+  expect(f).toThrow(/Routes Error: Action must be a function/);
 });
 
 // test('Missmatch routes-actions', () => {
 //   let f = () => {
 //     routes.addRoutes([
-//       ['/test',action1],
+//       ['/test',post_action],
 //       ['/peace']
 //     ]);
 //   };
@@ -112,11 +132,13 @@ test('Bad Action', () => {
 // });
 //
 // test('Invalid list', () => {
-//   let f = () => {routes.addRoutes('/edit',action1)};
-//   expect(f).toThrow(/Router Error: List must be an array/);
+//   let f = () => {routes.addRoutes('/edit',post_action)};
+//   expect(f).toThrow(/Routes Error: List must be an array/);
 // })
 
 test('Invalid Method', () => {
-  let f = () => {routes.addRoute('foo', '/love', action1);};
-  expect(f).toThrow(/Router Error: Method/);
+  let f = () => {routes.addMethodRoute('foo', '/love', post_action);};
+  expect(f).toThrow(/Routes Error: Method/);
+  let g = () => {routes.addRoute('foo:/love', post_action);};
+  expect(g).toThrow(/Routes Error: Method/);
 });
