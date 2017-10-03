@@ -40,8 +40,7 @@ class Routes extends SimpleRoutes {
   // action: (function) the action (funtion callback) to perform. This function
   //         will be returned on a successful match.
   addMethodRoute(method, route, action) {
-    method = method.toUpperCase();
-    _checkMethod(method);
+    method = _checkMethod(method);
 
     // Need to check route here since we will combine it with the method
     // when sending it to simple-routes
@@ -63,7 +62,7 @@ class Routes extends SimpleRoutes {
       });
     }
     else {
-      throw new Error(`Router Error: List must be an array\nList: ${list}`)
+      throw new Error(`Routes Error: List must be an array\nList: ${list}`)
     }
     // Allow chaining of addRoutes
     return this;
@@ -79,8 +78,7 @@ class Routes extends SimpleRoutes {
   // Show the action for the passed method and route
   // Returns the function or undefined if not found
   getMethodAction(method, route) {
-    method = method.toUpperCase();
-    _checkMethod(method);
+    method = _checkMethod(method);
     // Separate potential query string
     let rq = route.split('?');
     // Index of path only
@@ -97,8 +95,7 @@ class Routes extends SimpleRoutes {
   // Get the route pattern that is matched for the passed method, route
   // Returns undefined if not found
   getMethodRouteMatch(method, route) {
-    method = method.toUpperCase();
-    _checkMethod(method);
+    method = _checkMethod(method);
     // Separate potential query string
     let rq = route.split('?');
     // Index of path only
@@ -115,11 +112,10 @@ class Routes extends SimpleRoutes {
   // Remove the route pattern and method combination
   // Returns the action or undefined if not found
   removeMethodRoute(method, route) {
-    method = method.toUpperCase();
-    _checkMethod(method);
+    method = _checkMethod(method);
     // Separate potential query string
     let rq = route.split('?');
-    return super.removeRoute(`${method}:${rq[0]}`)
+    return this.removeRoute(`${method}:${rq[0]}`)
   };
 
   // If has route pattern given the passed method:route string
@@ -130,8 +126,7 @@ class Routes extends SimpleRoutes {
 
   // If has route pattern for a particular method and route pattern
   hasMethodRoute(method, route) {
-    _checkMethod(method);
-    method = method.toUpperCase();
+    method = _checkMethod(method);
     // Separate potential query string
     let rq = route.split('?');
     return this.hasRoute(`${method}:${rq[0]}`);
@@ -142,19 +137,27 @@ class Routes extends SimpleRoutes {
 * Private FUNCTIONS
 ***/
 
-// Check the method for accurateness
+// Check the method for errors
 let _checkMethod = (method) => {
-  if (!method) throw new Error(`Routes Error: Method ${method} is not included in: ${METHODS}.`);
-  if (!METHODS.includes(method)) {
-    throw new Error(`Routes Error: Method ${method} is not included in: ${METHODS}.`);
+  if (method && (typeof method) === 'string') {
+    method = method.toUpperCase();
+    if (!METHODS.includes(method))
+      throw new Error(`Routes Error: Method ${method} is not included in: ${METHODS}.`);
   }
+  else
+    throw new Error(`Routes Error: Method ${method} is not included in: ${METHODS}.`);
+
+  return method;
 };
 
 let _checkRouteString = (route) => {
-  if (!route) throw new Error(`Routes Error: Route must be a string for\nroute: ${route}`);
-  let method = route.split(':')[0];
-  _checkMethod(method);
-}
+  if (route && (typeof route) === 'string') {
+    let method = route.split(':')[0];
+    _checkMethod(method);
+  }
+  else
+    throw new Error(`Routes Error: Route must be a string for\nroute: ${route}`);
+};
 
 // "STATIC" variables
 Routes.POST = 'POST';

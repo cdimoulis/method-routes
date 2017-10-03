@@ -121,24 +121,31 @@ test('Bad Action', () => {
   expect(f).toThrow(/Routes Error: Action must be a function/);
 });
 
-// test('Missmatch routes-actions', () => {
-//   let f = () => {
-//     routes.addRoutes([
-//       ['/test',post_action],
-//       ['/peace']
-//     ]);
-//   };
-//   expect(f).toThrow();
-// });
-//
-// test('Invalid list', () => {
-//   let f = () => {routes.addRoutes('/edit',post_action)};
-//   expect(f).toThrow(/Routes Error: List must be an array/);
-// })
+test('Missmatch routes-actions', () => {
+  let f = () => {
+    routes.addRoutes([
+      [Routes.PUT, '/test',put_action],
+      [Routes.GET, '/peace']
+    ]);
+  };
+  expect(f).toThrow();
+});
+
+test('Invalid list', () => {
+  let f = () => {routes.addRoutes(Routes.PUT, '/edit',put_action)};
+  expect(f).toThrow(/Routes Error: List must be an array/);
+});
 
 test('Invalid Method', () => {
   let f = () => {routes.addMethodRoute('foo', '/love', post_action);};
   expect(f).toThrow(/Routes Error: Method/);
   let g = () => {routes.addRoute('foo:/love', post_action);};
   expect(g).toThrow(/Routes Error: Method/);
+  let h = () => {routes.addMethodRoute(5, '/love', post_action);};
+  expect(h).toThrow(/Routes Error: Method/);
+});
+
+test('Invalid Route', () => {
+  let f = () => {routes.removeRoute(3);};
+  expect(f).toThrow(/Routes Error: Route must be a string for/);
 });
